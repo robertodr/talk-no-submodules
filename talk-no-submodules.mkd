@@ -61,31 +61,47 @@ layout: false
 <p style="clear: both;">
 ]
 ---
-template: inverse
-## Managing modules
----
 layout: false
 .left-column[
-  ## Strategies
+  ## Strategies.red[*]
+.footnote[.red[*] Guess which one I am going to suggest.]
 ]
 .right-column[
-- Use git submodules mechanism
-  * DALTON, LSDALTON, DIRAC
+- Use the submodules mechanism provided by git
+  * DALTON
+  * LSDALTON
+  * DIRAC
 
-- Keep a static copy in the host repository
+- Keep a static copy in the host code repository
   * ReSpect
 
 - Distribute as library
   * Psi4
 ]
 
+--
+
 __Enforce conceptual separation by physical segregation__
 
 - Keep host and guest code as far as possible
 
-- Guest code should be invisible to host developers
+- Guest code minimally visible to host developers
+
+<font color="red">
+<center><b>Ignorance is bliss</b></center>
+</font>
 
 ???
+
+The second strategy is similar to the first one,
+but avoids the use of submodules. Still we keep track of changes
+of code that is essentially third-party.
+Might be a good alternative it that third-party code is rock solid.
+XCFUN is an example.
+
+I want to be as ignorant of the guest internals as I am ignorant of BLAS/LAPACK internals
+
+Guess which solution I am going to suggest?
 
 ---
 layout: false
@@ -94,7 +110,6 @@ layout: false
 ]
 .right-column[
 * Keep a reference to a commit in the submodule repo
-
  ```
  [submodule "external/pcmsolver"]
  	path = external/pcmsolver
@@ -102,146 +117,240 @@ layout: false
  ```
 
 * Clone recursively to get all sources
-```
-git clone --recursive git@gitlab.com:dalton/lsdalton.git
-```
+  ```
+  git clone --recursive git@gitlab.com:dalton/lsdalton.git
+  ```
 
 * Compile everything together
   - We use CMake
       * Need `ON/OFF` toggles...
       * ...and to tweak submodule dependencies
   - Doable with autotools, but painful
+
+* Switch host branches
+  ```
+  git branch my_branch
+  git submodule sync
+  git submodule update --init --recursive
+  ```
 ]
 
 ???
----
+
+Clone recursively: this repo, its submodules, their submodules...
+```
+git clone --recursive git@gitlab.com:dalton/lsdalton.git
+```
+
+Different branches might point to different submodules remotes
+```
+git submodule sync
+```
+
+Different branches might point to different commits
+```
+git submodule update --init --recursive
+ ```
 
 ---
 layout: false
-# Images
+class: split-50
+## Using git
 
-<img src="images/clone_error.png" style="float: left; width: 45%; margin-right: 1%; margin-bottom: 0.5em;">
-<img src="images/clone_error-lab.png" style="float: left; width: 45%; margin-right: 1%; margin-bottom: 0.5em;">
+.column[
+<font color="red">
+<center>Pros</center>
+</font>
+* Simple workflow for interface prototyping
+
+* Transparent for end users
+
+* Uniform compilation
+]
+.column[
+<font color="red">
+<center>Cons</center>
+</font>
+* Every developer has to be aware of submodules
+
+* Transfer of dependencies
+
+* Submodule testing?
+]
+
+### Usual responses
+
+* _Deactivating submodule XYZ on my workstation until a fix is committed!_
+
+* _F\*@#!!! It was working yesterday!_ &#9760; _F\*@#_ &#9760;.red[*]
+
+* _At the end of the day, modularity is not that great..._
+
+.footnote[.red[*]Emphasis mine]
+???
+
+---
+## Using git
+<img src="images/contented.jpg" style="float: left; width: 45%; margin-right: 1%; margin-bottom: 0.5em;">
+<img src="images/love_you_too.jpg" style="float: left; width: 50%; margin-right: 1%; margin-bottom: 0.5em;">
+<p style="clear: both;">
+
+* It tangles host and guest code build up
+
+* You still need to care, even if you would like not to
+
+* Deactivating == not testing == failures down the road
+
+* Semantic versioning __never__ enforced
+
+???
+
+Transfer of dependencies, quirky compilation workarounds
+
+Switching branches requires now three (!) commands,
+even if you don't use the submodules code
+
+Most likely (and usually) failures happen when the release is imminent
+
+---
+layout: false
+## Real world<sup>TM</sup> examples
+
+### Cloning and branch switching
+
+<div class="imageWrapper">
+  <img class="overlayImage" src="images/clone_error.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/clone_error-lab.png" style="width: 80%" align="middle">
+</div>
 <p style="clear: both;">
 
 ---
+layout: false
+## Real world<sup>TM</sup> examples
+
+### Accidental submodule reference updates
+
+<div class="imageWrapper">
+  <img class="overlayImage" src="images/compile_error1.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/compile_error2.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/compile_error3.png" style="width: 80%" align="middle">
+</div>
+<p style="clear: both;">
+
+---
+layout: false
+## Real world<sup>TM</sup> examples
+
+### "Asynchronous" host/guest updates
+
+<div class="imageWrapper">
+  <img class="overlayImage" src="images/link_error1.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/link_error2.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/link_error3.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/link_error4.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/link_error5.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/link_error6.png" style="width: 80%" align="middle">
+--
+  <img class="overlayImage" src="images/link_error7.png" style="width: 80%" align="middle">
+</div>
+<p style="clear: both;">
+
+???
+
+"Asynchronous" means that the guest developers forgets to update the reference
+to the submodule with the commit to the host code repository
+
+---
+layout: false
 .left-column[
-  ## What is it?
-  ## Why use it?
+  ## Distribute library.red[*]
+.footnote[.red[*] Pilfered from dr. Lori A. Burns, with permission!]
 ]
 .right-column[
-If your ideal slideshow creation workflow contains any of the following steps:
+* Link against a library.
 
-- Just write what's on your mind
+* Distribute the host executable and its redistributable dependencies.
 
-- Do some basic styling
+### Wait, what? Who's compiling the submodule?
 
-- Easily collaborate with others
+Host allows only three routes for add-ons:
 
-- Share with and show to everyone
+1. detecting pre-built _dynamic_ add-on library and headers.
+  Requires writing a `FindAddon.cmake` module.
 
-Then remark might be perfect for your next.red[*] slideshow!
+2. build _dynamic_ add-on library on-demand.
+  Requires writing a `ConfigAddon.cmake` module with an extensive `ExternalProject_Add` command.
 
-.footnote[.red[*] You probably want to convert existing slideshows as well]
+3. build _static_ add-on library on-demand.
+  Same as above, but final executable might not be redistributable.
+<font color="red">
+<center><b>Confusing?</b></center>
+</font>
 ]
----
-.left-column[
-  ## What is it?
-  ## Why use it?
-]
-.right-column[
-As the slideshow is expressed using Markdown, you may:
 
-- Focus on the content, expressing yourself in next to plain text not worrying what flashy graphics and disturbing effects to put where
+???
 
-As the slideshow is actually an HTML document, you may:
+Linking is something we're already very good at doing,
+either with CMake or autotools.
+I don't know (and I don't care about autotools) so we'll assume
+CMake throughout.
 
-- Display it in any decent browser
+Needed to prototype all the CMake variable exchanges that the parent
+and external project are going to have to make.
 
-- Style it using regular CSS, just like any other HTML content
-
-- Use it offline!
-
-As the slideshow is contained in a plain file, you may:
-
-- Store it wherever you like; on your computer, hosted from your Dropbox, hosted on Github Pages alongside the stuff you're presenting...
-
-- Easily collaborate with others, keeping track of changes using your favourite SCM tool, like Git or Mercurial
-]
----
-template: inverse
-
-## How does it work, then?
----
-name: how
-
-.left-column[
-  ## How does it work?
-### - Markdown
-]
-.right-column[
-A Markdown-formatted chunk of text is transformed into individual slides by JavaScript running in the browser:
-
-```remark
-# Slide 1
-This is slide 1
+First an example, then we discuss pros and cons.
 
 ---
-
-# Slide 2
-This is slide 2
+layout: false
+## Real world<sup>TM</sup> example.red[*]
+.footnote[.red[*] Files available from the [Psi4](https://github.com/psi4/psi4public) public repository]
+```cmake
+if(ENABLE_PCMSOLVER)
+  include(ConfigPCMSolver)
+endif()
+```
+```cmake
+# User signal to try pre-built PCMSolver
+if(PCMSOLVER_ROOT)
+  find_package(PCMSolver)
+endif()
+# Build PCMSolver as external package if pre-built failed or not signaled
+if(NOT PCMSolver_FOUND)
+  # Configuration of on-demand build
+  ExternalProject_Add(interface_pcmsolver
+    PREFIX ${CUSTOM_PCMSolver_LOCATION}
+    GIT_REPOSITORY https://github.com/PCMSolver/pcmsolver
+    GIT_TAG master
+    CMAKE_ARGS "${PCMSolverCMakeArgs}"
+    INSTALL_DIR "${CUSTOM_PCMSolver_LOCATION}/install"
+    )
+  # Post-build operations
+endif()
 ```
 
-.slides[
-  .first[
-  ### Slide 1
-  This is slide 1
-  ]
-  .second[
-  ### Slide 2
-  This is slide 2
-  ]
-]
+???
 
-Regular Markdown rules apply with only a single exception:
+All of these files are publicly available on the Psi4 repo
 
-  - A line containing three dashes constitutes a new slide
-  (not a horizontal rule, `&lt;hr /&gt;`)
-
-Have a look at the [Markdown website](http://daringfireball.net/projects/markdown/) if you're not familiar with Markdown formatting.
-]
 ---
+layout: false
 .left-column[
-  ## How does it work?
-  ### - Markdown
-  ### - Inside HTML
+  ## Distribute library
 ]
 .right-column[
-A simple HTML document is needed for hosting the styles, Markdown and the generated slides themselves:
+* Final objective: distribute executable to end-users
+  - Most users are not able to build anyway...
 
-```xml
-<!DOCTYPE html>
-<html>
-  <head>
-    <style type="text/css">
-      /* Slideshow styles */
-    </style>
-  </head>
-  <body>
-*    <textarea id="source">
-      <!-- Slideshow Markdown -->
-    &lt;/textarea&gt;
-*    <script src="remark.js">
-    </script>
-    <script>
-*      var slideshow = remark.create();
-    </script>
-  </body>
-</html>
-```
-
-You may download remark to have your slideshow not depend on any online resources, or reference the [latest version](http://remarkjs.com/downloads/remark-latest.min.js) online directly.
 ]
+
 ---
 template: inverse
 
