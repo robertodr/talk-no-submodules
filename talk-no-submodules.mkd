@@ -10,11 +10,9 @@ class: center, middle, inverse
 
 .footnote[Slides available on [GitHub](https://github.com/robertodr/talk-no-submodules), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) licensed]
 ---
-## Modular programming
----
 layout: false
 .left-column[
-  ## What is it?
+  ## Modular programming
 ]
 .right-column[
   Divide-and-conquer programming tasks.red[*]:
@@ -57,9 +55,16 @@ layout: false
   ## Testing
 ]
 .right-column[
-<img src="images/why_you_need_testing.jpg" align="right">
+<img src="images/why_you_need_testing.jpg" align="middle">
 <p style="clear: both;">
+
+  No task is too small for testing!
 ]
+
+???
+
+No task is too small to go untested!
+
 ---
 layout: false
 .left-column[
@@ -81,7 +86,7 @@ layout: false
 
 --
 
-__Enforce conceptual separation by physical segregation__
+Enforce __conceptual separation__ by __physical segregation__
 
 - Keep host and guest code as far as possible
 
@@ -335,234 +340,89 @@ if(NOT PCMSolver_FOUND)
   # Post-build operations
 endif()
 ```
-
 ???
 
 All of these files are publicly available on the Psi4 repo
 
+The top-most CMakeLists.txt contains just a switch.
+If the add-on is enabled try to configure it.
+
+The ConfigPCMSolver.cmake file contains some logic to reroute for
+option 1 (detect and use prebuilt add-on) or options 2 and 3.
+For a package that is provided by the Linux distribution in use
+we would do exactly the same!
+
+Options 2 and 3 are the very last resort, unless the developer
+wants to run a "super-build". The code is downloaded at build
+time into the build directory.
+So yeah, we have the code somewhere but it's not in the source
+tree of the host!
+
 ---
 layout: false
-.left-column[
-  ## Distribute library
+class: split-50
+## Distribute library
+
+.column[
+<font color="red">
+<center>Pros</center>
+</font>
+* Transparent for developers
+
+* Uniform compilation
+
+* No worries about the source
 ]
-.right-column[
-* Final objective: distribute executable to end-users
-  - Most users are not able to build anyway...
+.column[
+<font color="red">
+<center>Cons</center>
+</font>
+* Awkward for interface prototyping
 
-]
+* Transfer of dependencies
 
----
-template: inverse
-
-## Of course, Markdown can only go so far.
----
-.left-column[
-  ## Markdown extensions
-]
-.right-column[
-To help out with slide layout and formatting, a few Markdown extensions have been included:
-
-- Slide properties, for naming, styling and templating slides
-
-- Content classes, for styling specific content
-
-- Syntax highlighting, supporting a range of languages
+* End-users?
 ]
 
----
-.left-column[
-  ## Markdown extensions
-  ### - Slide properties
-]
-.right-column[
-Initial lines containing key-value pairs are extracted as slide properties:
+### Possible responses
 
-```remark
-name: agenda
-class: middle, center
+* _Deactivating submodule XYZ on my workstation until a fix is committed!_
 
-# Agenda
+* _F\*@#!!! It was working yesterday!_ &#9760; _F\*@#_ &#9760;.red[*]
 
-The name of this slide is {{ name }}.
-```
+* _At the end of the day, modularity is not that great..._
 
-Slide properties serve multiple purposes:
+.footnote[.red[*]Emphasis mine]
 
-* Naming and styling slides using properties `name` and `class`
-
-* Using slides as templates using properties `template` and `layout`
-
-* Expansion of `{{ property }}` expressions to property values
-
-See the [complete list](https://github.com/gnab/remark/wiki/Markdown#slide-properties) of slide properties.
-]
----
-.left-column[
-  ## Markdown extensions
-  ### - Slide properties
-  ### - Content classes
-]
-.right-column[
-Any occurences of one or more dotted CSS class names followed by square brackets are replaced with the contents of the brackets with the specified classes applied:
-
-```remark
-.footnote[.red.bold[*] Important footnote]
-```
-
-Resulting HTML extract:
-
-```xml
-<span class="footnote">
-  <span class="red bold">*</span> Important footnote
-</span>
-```
-]
----
-.left-column[
-  ## Markdown extensions
-  ### - Slide properties
-  ### - Content classes
-  ### - Syntax Highlighting
-]
-.right-column[
-Code blocks can be syntax highlighted by specifying a language from the set of [supported languages](https://github.com/gnab/remark/wiki/Configuration#highlighting).
-
-Using [GFM](http://github.github.com/github-flavored-markdown/) fenced code blocks you can easily specify highlighting language:
-
-.pull-left[
-
-<pre><code>```javascript
-function add(a, b)
-  return a + b
-end
-```</code></pre>
-]
-.pull-right[
-
-<pre><code>```ruby
-def add(a, b)
-  a + b
-end
-```</code></pre>
-]
-
-A number of highlighting [styles](https://github.com/gnab/remark/wiki/Configuration#highlighting) are available, including several well-known themes from different editors and IDEs.
-
-]
----
-.left-column[
-  ## Presenter mode
-]
-.right-column[
-To help out with giving presentations, a presenter mode comprising the
-following features is provided:
-
-- Display of slide notes for the current slide, to help you remember
-  key points
-
-- Display of upcoming slide, to let you know what's coming
-
-- Cloning of slideshow for viewing on extended display
-]
----
-.left-column[
-  ## Presenter mode
-  ### - Inline notes
-]
-.right-column[
-Just like three dashes separate slides,
-three question marks separate slide content from slide notes:
-
-```
-Slide 1 content
-
-*???
-
-Slide 1 notes
-
----
-
-Slide 2 content
-
-*???
-
-Slide 2 notes
-```
-
-Slide notes are also treated as Markdown, and will be converted in the
-same manner slide content is.
-
-Pressing __P__ will toggle presenter mode.
-]
 ???
-Congratulations, you just toggled presenter mode!
 
-Now press __P__ to toggle it back off.
+* Transparent for developers
+  - Install once...
+  - ...or compile on-demand...
+  - ...forget about it
+
+* Awkward for interface prototyping
+  - Submodule code lives somewhere else
+    Nothing that can't be managed by a script
+  - On your branch you can still use submodules.
+    But they should not go to `master`!
+
 ---
-.left-column[
-  ## Presenter mode
-  ### - Inline notes
-  ### - Cloned view
-]
-.right-column[
-Presenter mode of course makes no sense to the audience.
+## Distribute library
+<img src="images/contented.jpg" style="float: left; width: 45%; margin-right: 1%; margin-bottom: 0.5em;">
+<img src="images/love_you_too.jpg" style="float: left; width: 50%; margin-right: 1%; margin-bottom: 0.5em;">
+<p style="clear: both;">
 
-Creating a cloned view of your slideshow lets you:
+* Distribute executable to end-users
+  - Most users are not able to build anyway...
+  - What are the benefits of compiling natively?
+  - Counting source code
 
-- Move the cloned view to the extended display visible to the audience
-
-- Put the original slideshow in presenter mode
-
-- Navigate as usual, and the cloned view will automatically keep up with the original
-
-Pressing __C__ will open a cloned view of the current slideshow in a new
-browser window.
-]
----
-template: inverse
-
-## It's time to get started!
----
-.left-column[
-  ## Getting started
-]
-.right-column[
-Getting up and running is done in only a few steps:
-
-1. Visit the [project site](http://github.com/gnab/remark)
-
-2. Follow the steps in the Getting Started section
-
-For more information on using remark, please check out the [wiki](https://github.com/gnab/remark/wiki) pages.
-]
----
-class: left
-
-##  How About Some Gnarly Equations?
-
-I'm glad you asked.  With a link to the MathJax Javascript library, you can
-write inline equations  `\(E=mc^2\)`, or full-line equations like:
-
-`$$\Gamma(t)=  \pi \, \Im\left\{ \mathbf{x}_+^H(t) \, \frac{\mathrm{d}}{\mathrm{d} t}\mathbf{x}_+(t)\right\}$$`
-
-You can just write in LaTeX, with minor modifications for specifying in-line or
-full-line equations.  Also, in Remark, the equations are surrounded by
-backquotes, as you see in the source.
-
-
-[{MathJax}](https://www.mathjax.org/) lets you write your equations in other ways; see the documentation for details.
-
-
-Note that writing equations in MathJax impacts the portability of your talk.
-Currently, this template links to a local copy of Remark, but a remote (online)
-copy of MathJax.  If you want the equations to work when you are offline, you
-need to copy the entire MathJax project, about 150 Mb.  See the comments at the
-bottom of this file.
 ---
 name: last-page
 template: inverse
 
-## That's all folks (for now)!
+## Thanks for your attention!
 
 Slideshow created using [remark] and served using [cicero]
 
