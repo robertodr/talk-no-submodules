@@ -2,34 +2,122 @@ name: inverse
 layout: true
 class: center, middle, inverse
 ---
-#Polarizable Continuum Model for Spherically Symmetric Diffuse Interfaces
+#Managing submodules without git
 
 .author[Roberto Di Remigio]
 
-.footnote[These slides available on [GitHub](https://github.com/robertodr/talk-no-submodules)]
+.date[11 February 2016, Skibotn]
+
+.footnote[Slides available on [GitHub](https://github.com/robertodr/talk-no-submodules), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) licensed]
 ---
-## What is it and why should I be using it?
+## Modular programming
 ---
 layout: false
 .left-column[
   ## What is it?
 ]
 .right-column[
-  A simple, in-browser, Markdown-driven slideshow tool targeted at people who know their way around HTML and CSS, featuring:
+  Divide-and-conquer programming tasks.red[*]:
 
-- Markdown formatting, with smart extensions
+- Keep independent tasks uncoupled
 
-- Presenter mode, with cloned slideshow view
+- Components can be tested autonomously
 
-- Syntax highlighting, supporting a range of languages
+- Provide standard interfaces across hosts
 
-- Slide scaling, thus similar appearance on all devices / resolutions .red[*]
+.footnote[.red[*] D. L. Parnas, [_Commun. ACM_, 1968, __11__, 341](http://dl.acm.org/citation.cfm?id=361623)]
 
-- Touch support for smart phones and pads, i.e. swipe to navigate slides
+  How?
 
-.footnote[.red[*] At least browsers try their best]
+- Divide codebase into small components
+
+- Components __have to be__ (mostly) agnostic of each other
+
+- __No assumptions__ about the host should be made
+
+- Test on the largest number of platforms possible
+
+- [Semantic versioning](http://semver.org/)
+
+]
+
+???
+
+Standard interfaces: think of BLAS and LAPACK
+
+Loose coupling between components is essential!
+
+Loose coupling of the host on the guest is even more essential.
+
+Language interoperability means that you should use C, at least at the interface level.
+
+---
+layout: false
+.left-column[
+  ## Testing
+]
+.right-column[
+<img src="images/why_you_need_testing.jpg" align="right">
+<p style="clear: both;">
 ]
 ---
+template: inverse
+## Managing modules
+---
+layout: false
+.left-column[
+  ## Strategies
+]
+.right-column[
+- Use git submodules mechanism
+  * DALTON, LSDALTON, DIRAC
+
+- Keep a static copy in the host repository
+  * ReSpect
+
+- Distribute as library
+  * Psi4
+]
+
+__Enforce conceptual separation by physical segregation__
+
+- Keep host and guest code as far as possible
+
+- Guest code should be invisible to host developers
+
+???
+
+---
+layout: false
+.left-column[
+  ## Using git
+]
+.right-column[
+* Keep a reference to a commit in the submodule repo
+
+ ```
+ [submodule "external/pcmsolver"]
+ 	path = external/pcmsolver
+ 	url = https://github.com/PCMSolver/pcmsolver.git
+ ```
+
+* Clone recursively to get all sources
+```
+git clone --recursive git@gitlab.com:dalton/lsdalton.git
+```
+
+* Compile everything together
+  - We use CMake
+      * Need `ON/OFF` toggles...
+      * ...and to tweak submodule dependencies
+  - Doable with autotools, but painful
+]
+
+???
+---
+
+---
+layout: false
 # Images
 
 <img src="images/clone_error.png" style="float: left; width: 45%; margin-right: 1%; margin-bottom: 0.5em;">
@@ -367,4 +455,7 @@ template: inverse
 
 ## That's all folks (for now)!
 
-Slideshow created using [remark](http://github.com/gnab/remark).
+Slideshow created using [remark] and served using [cicero]
+
+[remark]: https://github.com/gnab/remark
+[cicero]: https://github.com/bast/cicero
