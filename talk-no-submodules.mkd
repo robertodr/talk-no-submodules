@@ -15,7 +15,7 @@ layout: false
   ## Modular programming
 ]
 .right-column[
-  Divide-and-conquer programming tasks.red[*]:
+  Divide-and-conquer for programming.red[*]:
 
 - Keep independent tasks uncoupled
 
@@ -41,13 +41,22 @@ layout: false
 
 ???
 
-Standard interfaces: think of BLAS and LAPACK
+- Keep independent tasks uncoupled
 
-Loose coupling between components is essential!
+- Components can be tested autonomously
 
-Loose coupling of the host on the guest is even more essential.
+- Provide standard interfaces across hosts
+  * Standard interfaces: think of BLAS and LAPACK
 
-Language interoperability means that you should use C, at least at the interface level.
+  How?
+
+- Components __have to be__ (mostly) agnostic of each other
+   * Loose coupling between components is essential!
+
+- __No assumptions__ about the host should be made
+   * Loose coupling of the host and the guest is even more essential.
+   * Think of language interoperability from the start!
+   * This means that you should use C, at least at the interface level.
 
 ---
 layout: false
@@ -84,6 +93,17 @@ layout: false
   * Psi4
 ]
 
+???
+
+- Keep a static copy in the host code repository
+- The second strategy is similar to the first one, but avoids the use of submodules.
+- Still we keep track of changes of code that is essentially third-party.
+-  Might be a good alternative it that third-party code is rock solid.
+-  XCFUN is an example.
+- I want to be as ignorant of the guest internals as I am ignorant of BLAS/LAPACK internals
+- And by internals I mean also the quirks and tweaks of getting it to compile!
+- Guess which solution I am going to suggest?
+
 --
 
 Enforce __conceptual separation__ by __physical segregation__
@@ -95,18 +115,6 @@ Enforce __conceptual separation__ by __physical segregation__
 <font color="red">
 <center><b>Ignorance is bliss</b></center>
 </font>
-
-???
-
-The second strategy is similar to the first one,
-but avoids the use of submodules. Still we keep track of changes
-of code that is essentially third-party.
-Might be a good alternative it that third-party code is rock solid.
-XCFUN is an example.
-
-I want to be as ignorant of the guest internals as I am ignorant of BLAS/LAPACK internals
-
-Guess which solution I am going to suggest?
 
 ---
 layout: false
@@ -183,6 +191,16 @@ class: split-50
 * Submodule testing?
 ]
 
+???
+
+- Transfer of dependencies
+- Quirky compilation workarounds
+- Switching branches requires now three (!) commands, even if you don't use the submodules code
+  * Wait for the example!
+- Most likely (and usually) failures happen when the release is imminent
+
+--
+
 ### Usual responses
 
 * _Deactivating submodule XYZ on my workstation until a fix is committed!_
@@ -192,7 +210,6 @@ class: split-50
 * _At the end of the day, modularity is not that great..._
 
 .footnote[.red[*]Emphasis mine]
-???
 
 ---
 ## Using git
@@ -210,12 +227,11 @@ class: split-50
 
 ???
 
-Transfer of dependencies, quirky compilation workarounds
-
-Switching branches requires now three (!) commands,
-even if you don't use the submodules code
-
-Most likely (and usually) failures happen when the release is imminent
+- It has worked up to now
+- But has led to lots of frustration!
+- Why am I not happy with it?
+- I am a sinner! I've propagated this model too
+  * It was to adopt this that we re-wrote Psi4 CMake infrastructure
 
 ---
 layout: false
@@ -249,10 +265,16 @@ layout: false
 layout: false
 ## Real world<sup>TM</sup> examples
 
-### "Asynchronous" host/guest updates
+### Faulty host/guest updates
 
 <div class="imageWrapper">
   <img class="overlayImage" src="images/link_error1.png" style="width: 80%" align="middle">
+
+???
+
+- The guest developer forgets to update the reference to the submodule
+  with the commit to the host code repository
+
 --
   <img class="overlayImage" src="images/link_error2.png" style="width: 80%" align="middle">
 --
@@ -268,11 +290,6 @@ layout: false
 </div>
 <p style="clear: both;">
 
-???
-
-"Asynchronous" means that the guest developers forgets to update the reference
-to the submodule with the commit to the host code repository
-
 ---
 layout: false
 .left-column[
@@ -280,9 +297,11 @@ layout: false
 .footnote[.red[*] Pilfered from dr. Lori A. Burns, with permission!]
 ]
 .right-column[
+* Host repo contains interface to module.
+
 * Link against a library.
 
-* Distribute the host executable and its redistributable dependencies.
+* Host bundles and distributes in executable.
 
 ### Wait, what? Who's compiling the submodule?
 
@@ -303,20 +322,26 @@ Host allows only three routes for add-ons:
 
 ???
 
-Linking is something we're already very good at doing,
-either with CMake or autotools.
-I don't know (and I don't care about autotools) so we'll assume
-CMake throughout.
+- Linking is something we're already very good at doing,
+  either with CMake or autotools.
 
-Needed to prototype all the CMake variable exchanges that the parent
-and external project are going to have to make.
+### Wait, what? Who's compiling the submodule?
 
-First an example, then we discuss pros and cons.
+- I don't know (and I don't care about) autotools so we'll assume
+  CMake throughout.
+- `FindAddon.cmake` is fairly easy to write. There are many examples among the
+  standard CMake modules.
+- `ConfigAddon.cmake` is needed to prototype all the CMake variable exchanges
+  that the parent and external project are going to have to make.
+  * We are already doing this step and we've become fairly good at it
+- First an example, then we discuss pros and cons.
 
 ---
 layout: false
-## Real world<sup>TM</sup> example.red[*]
-.footnote[.red[*] Files available from the [Psi4](https://github.com/psi4/psi4public) public repository]
+## Real world<sup>TM</sup> example
+
+CMake snippets available from the [Psi4](https://github.com/psi4/psi4public) public repository
+
 ```cmake
 if(ENABLE_PCMSOLVER)
   include(ConfigPCMSolver)
@@ -342,21 +367,18 @@ endif()
 ```
 ???
 
-All of these files are publicly available on the Psi4 repo
-
-The top-most CMakeLists.txt contains just a switch.
-If the add-on is enabled try to configure it.
-
-The ConfigPCMSolver.cmake file contains some logic to reroute for
-option 1 (detect and use prebuilt add-on) or options 2 and 3.
-For a package that is provided by the Linux distribution in use
-we would do exactly the same!
-
-Options 2 and 3 are the very last resort, unless the developer
-wants to run a "super-build". The code is downloaded at build
-time into the build directory.
-So yeah, we have the code somewhere but it's not in the source
-tree of the host!
+- All of these files are publicly available on the Psi4 repo
+- The top-most `CMakeLists.txt` contains just a switch.
+  If the add-on is enabled try to configure it.
+- The `ConfigPCMSolver.cmake` file contains some logic to reroute for
+  option 1 (detect and use prebuilt add-on) or options 2 and 3.
+- For a package that is provided by the Linux distribution in use
+  we would do exactly the same!
+- Options 2 and 3 are the very last resort, unless the developer
+  wants to run a "super-build". The code is downloaded at build
+  time into the build directory.
+- So yeah, we have the code somewhere but it's not in the source
+  tree of the host!
 
 ---
 layout: false
@@ -384,6 +406,27 @@ class: split-50
 * End-users?
 ]
 
+???
+
+* Transparent for developers
+  - Install once...
+  - ...or compile on-demand...
+  - ...and forget about it
+
+* Awkward for interface prototyping
+  - Submodule code lives somewhere else
+  - Really, nothing that can't be managed by a script
+  - On your branch you can still use submodules.
+  - But they should not go to `master`!
+
+* I think it strikes the best usability/modularity balance
+  - We are still actively promoting modularity
+  - But we are not "harassing" all developers into a different workflow
+  - Interface prototyping/testing is something a smaller group of developers does,
+    not the whole team!
+
+--
+
 ### Possible responses
 
 * _Deactivating submodule XYZ on my workstation until a fix is committed!_
@@ -394,29 +437,45 @@ class: split-50
 
 .footnote[.red[*]Emphasis mine]
 
-???
-
-* Transparent for developers
-  - Install once...
-  - ...or compile on-demand...
-  - ...forget about it
-
-* Awkward for interface prototyping
-  - Submodule code lives somewhere else
-    Nothing that can't be managed by a script
-  - On your branch you can still use submodules.
-    But they should not go to `master`!
-
 ---
-## Distribute library
-<img src="images/contented.jpg" style="float: left; width: 45%; margin-right: 1%; margin-bottom: 0.5em;">
-<img src="images/love_you_too.jpg" style="float: left; width: 50%; margin-right: 1%; margin-bottom: 0.5em;">
-<p style="clear: both;">
+## What's the end game? Distribute executables!
+
+* Most users are not able to build anyway...
+
+* What are the benefits of compiling natively?
+
+* Much easier to get reliable download tallies!
+
+???
 
 * Distribute executable to end-users
   - Most users are not able to build anyway...
   - What are the benefits of compiling natively?
-  - Counting source code
+* Counting source code downloads is cumbersome
+  - HJJ's method has been proven **not** to be scalable
+
+--
+
+## Daydreaming a bit
+
+* Package manager
+
+* Plugin capabilities
+
+* Sandboxing
+
+???
+
+We should aim at creating a programming environment for quantum chemistry
+
+* The package manager will handle dependencies
+* Plugin capabilities means that the environment can
+  be extended by the user, without ever knowing what's inside
+  the box!
+* Create local programming environments
+* This is much like Cabal for Haskell and Virtual Environments for Python
+* The Anaconda Python distribution has a package manager
+* Every Linux distribution has such a thing!
 
 ---
 name: last-page
