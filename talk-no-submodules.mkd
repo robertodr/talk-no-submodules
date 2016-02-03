@@ -9,6 +9,11 @@ class: center, middle, inverse
 .date[11 February 2016, Skibotn]
 
 .footnote[Slides available on [GitHub](https://github.com/robertodr/talk-no-submodules), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) licensed]
+
+???
+
+Some thoughts and a proposal on how to manage submodules without using git
+
 ---
 layout: false
 .left-column[
@@ -420,7 +425,7 @@ class: split-50
   - But they should not go to `master`!
 
 * I think it strikes the best usability/modularity balance
-  - We are still actively promoting modularity
+  - We are still encouraging modularity
   - But we are not "harassing" all developers into a different workflow
   - Interface prototyping/testing is something a smaller group of developers does,
     not the whole team!
@@ -438,6 +443,11 @@ class: split-50
 .footnote[.red[*]Emphasis mine]
 
 ---
+## _And now for something completely different_
+
+<p style="text-align:center;"><img src="images/sith_youth.jpg" style="width: 75%"></p>
+
+---
 ## What's the end game? Distribute executables!
 
 * Most users are not able to build anyway...
@@ -453,6 +463,8 @@ class: split-50
   - What are the benefits of compiling natively?
 * Counting source code downloads is cumbersome
   - HJJ's method has been proven **not** to be scalable
+* What about MPI?
+  - I don't know!!
 
 --
 
