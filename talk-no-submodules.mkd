@@ -448,6 +448,39 @@ class: split-50
 <p style="text-align:center;"><img src="images/sith_youth.jpg" style="width: 75%"></p>
 
 ---
+
+## How would this work?
+
+* Submodule developers
+  - Provide static and dynamic library
+  - Write a `FindAddon.cmake` script
+  - Be open source (optional)
+
+* Interface-to-host developers
+  - Have read-access to submodule source code (optional)
+  - Write a `ConfigAddon.cmake` script
+
+* Clashes with DALTON/LSDALTON/DIRAC distribution model
+  - Shipping tarballs requires all code in one place
+
+* Go open source and have a read-only public repo or...
+
+* ...assume user has Internet connection **and** git installed or...
+
+???
+
+* Transparent for host developers
+  - Nobody noticed the switch in Psi4! IMO a sign of success
+
+* Burden mostly on guest developers and interface-to-host developers
+  - Have to provide both a static and dynamic library, though this is piece of cake with CMake
+  - Have to write `FindAddon.cmake` and `ConfigAddon.cmake`
+
+* Clashes with DALTON/LSDALTON/DIRAC code distribution model
+  - Shipping a tarball means that all the code has to be in it
+
+---
+
 ## What's the end game? Distribute executables!
 
 * Most users are not able to build anyway...
