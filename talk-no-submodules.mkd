@@ -501,7 +501,7 @@ class: split-50
 
 --
 
-## Daydreaming a bit
+## Daydreaming
 
 * Package manager
 
@@ -521,6 +521,16 @@ We should aim at creating a programming environment for quantum chemistry
 * This is much like Cabal for Haskell and Virtual Environments for Python
 * The Anaconda Python distribution has a package manager
 * Every Linux distribution has such a thing!
+
+---
+
+## Acknowldegements
+
+- Radovan Bast
+
+- Lori A. Burns (GATech)
+
+- Justin Turney (UGA)
 
 ---
 name: last-page
