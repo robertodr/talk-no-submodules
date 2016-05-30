@@ -214,7 +214,7 @@
       // Setup MathJax
       MathJax.Hub.Config({
           tex2jax: {
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
           }
       });
       MathJax.Hub.Queue(function() {
@@ -224,6 +224,9 @@
       });
 
       MathJax.Hub.Configured();
+    </script>
+    <script type="text/x-mathjax-config"> MathJax.Hub.Config({
+      "TeX": {Macros: {AA : "{\\unicode{x212B}}"}}, "HTML-CSS": {scale: 90}});
     </script>
   </body>
 </html>
